@@ -13,7 +13,6 @@ layout: default
 It is easy to understood that applying certain unitaries can generate entangled states from unentangled ones.
 For instance, considering two qubits in either of states $|01\rangle$ or $|10\rangle$ by applying the two-qubit unitary operator
 $$
-\begin{align}
 {\cal U}_\alpha=
 \begin{pmatrix}
 1&0&0&0\\
@@ -21,7 +20,6 @@ $$
 0&-\sin\alpha&\cos \alpha&0\\
 0&0&0&1\\
 \end{pmatrix},
-\end{align}
 $$
 we get entangled states $\cos \alpha|01\rangle -\sin \alpha|10\rangle  $ and $\sin \alpha|01\rangle+ \cos \alpha|10\rangle $, respectively.
 For $\alpha=\pi/4$ these two states will be maximally entangled states (singlet and $S=0$ triplet states, respectively).
@@ -32,9 +30,7 @@ Before going to the details of how a quantum circuit operates, we should introdu
 A general manybody state of $2N$ $n$-bit chain
 can be written as
 $$
-\begin{align}
 |\Psi\rangle =\sum_{\{i,j\}=0,1,\cdots,n-1} \psi_{i_1j_1\cdots i_Nj_N} |i_1j_1\cdots i_Nj_N \rangle. 
-\end{align}
 $$
 
 
