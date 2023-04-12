@@ -11,7 +11,8 @@ layout: default
 ### Discrete-time quantum trajectories
 
 It is easy to understood that applying certain unitaries can generate entangled states from unentangled ones.
-For instance, considering two qubits in either of states $|01\rangle$ or $|10\rangle$ by applying the two-qubit unitary operator
+For instance, considering two qubits in either of states $$|01\rangle$$ or $$|10\rangle$$ by applying the two-qubit unitary operator
+
 $$
 {\cal U}_\alpha=
 \begin{pmatrix}
@@ -21,14 +22,16 @@ $$
 0&0&0&1\\
 \end{pmatrix},
 $$
-we get entangled states $\cos \alpha|01\rangle -\sin \alpha|10\rangle  $ and $\sin \alpha|01\rangle+ \cos \alpha|10\rangle $, respectively.
-For $\alpha=\pi/4$ these two states will be maximally entangled states (singlet and $S=0$ triplet states, respectively).
+
+we get entangled states $$\cos \alpha|01\rangle -\sin \alpha|10\rangle  $$ and $$\sin \alpha|01\rangle+ \cos \alpha|10\rangle $$, respectively.
+For $$\alpha=\pi/4$$ these two states will be maximally entangled states (singlet and $$S=0$$ triplet states, respectively).
 This idea can be exploited to design well known quantum circuits to generate on-demand highly-entangled states by successive application of  
 two-qubit unitaries to a multi-qubit system shown.
 
 Before going to the details of how a quantum circuit operates, we should introduce the useful notation of tensors for presenting manybody states.
-A general manybody state of $2N$ $n$-bit chain
+A general manybody state of $$2N$$ $$n$$-bit chain
 can be written as
+
 $$
 |\Psi\rangle =\sum_{\{i,j\}=0,1,\cdots,n-1} \psi_{i_1j_1\cdots i_Nj_N} |i_1j_1\cdots i_Nj_N \rangle. 
 $$
