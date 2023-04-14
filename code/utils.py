@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import time
 from datetime import datetime
-from util_func import U1_Two_Qubit_Unitary as TwoQubitUni
+from util_func import Two_Qubit_Unitary_U1 as TwoQubitUni
 
 
 class QuantumTrajectoryDynamics:

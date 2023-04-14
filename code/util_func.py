@@ -12,7 +12,7 @@ import scipy.linalg as la, scipy.sparse as sp
 
 
 
-def U1_Two_Qubit_Unitary(phi: np.ndarray) -> np.ndarray:
+def Two_Qubit_Unitary_U1(phi: np.ndarray) -> np.ndarray:
     """
     Calculates the U(1) charge-conserving unitary for a two-qubit gate (with 6 parameter overall).
 
