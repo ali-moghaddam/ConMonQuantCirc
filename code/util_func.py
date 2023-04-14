@@ -12,7 +12,7 @@ import scipy.linalg as la, scipy.sparse as sp
 
 
 
-def Two_Qubit_Unitary_U1(phi: np.ndarray) -> np.ndarray:
+def TwoQubit_Uni_U1(phi: np.ndarray) -> np.ndarray:
     """
     Calculates the U(1) charge-conserving unitary for a two-qubit gate (with 6 parameter overall).
 
@@ -35,11 +35,7 @@ def Two_Qubit_Unitary_U1(phi: np.ndarray) -> np.ndarray:
     return unitary_matrix
 
 
-def Two_Qubit_Gate_on_Circuit(
-        psi: np.ndarray, 
-        U: np.ndarray, 
-        m: int
-        ) -> np.ndarray:
+def Two_Qubit_Gate_on_Circuit(psi: np.ndarray, U: np.ndarray, m: int) -> np.ndarray:
     
     """
     Applies a two-qubit gate to a many-qubit state psi.

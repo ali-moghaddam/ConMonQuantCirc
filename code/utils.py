@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import time
 from datetime import datetime
-from util_func import Two_Qubit_Unitary_U1 as TwoQubitUni
-from util_func import Two_Qubit_Gate_on_Circuit as GateonCircuit
+from util_func import TwoQubit_Uni_U1 , Two_Qubit_Gate_on_Circuit
 
+TwoQubitUni = TwoQubit_Uni_U1
 
 class QuantumTrajectoryDynamics:
     
@@ -53,10 +53,8 @@ class QuantumTrajectoryDynamics:
         phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
         
         for m in range(num_TwoQubitGate):
-            self.psi = GateonCircuit(self.psi, TwoQubitUni(phi[:, m]), 2*m)       # This function applies two-qubit gate on circuit
+            self.psi = Two_Qubit_Gate_on_Circuit(self.psi, TwoQubitUni(phi[:, m]), 2*m)       # This function applies two-qubit gate on circuit
         
-        return self.psi
-
 
 
     def odd_time_unitary(self, phi_cte = np.zeros((6,1)), randomness = 1., PBC = True) -> np.ndarray:
@@ -82,7 +80,6 @@ class QuantumTrajectoryDynamics:
             phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
 
             for m in range(num_TwoQubitGate):
-                self.psi = GateonCircuit(self.psi, TwoQubitUni(phi[:, m]), 2*m + 1)
+                self.psi = Two_Qubit_Gate_on_Circuit(self.psi, TwoQubitUni(phi[:, m]), 2*m + 1)
 
-        return self.psi
 
