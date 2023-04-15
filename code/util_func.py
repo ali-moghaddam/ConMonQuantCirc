@@ -72,7 +72,7 @@ def Neel_state_DPS(N: int) -> np.ndarray:
     """
     
     count = np.sum([2 ** (2 * m + 1) for m in range(N//2)])
-    psi = np.zeros(2 ** N, dtype=np.complex128)
+    psi = np.zeros(2 ** N, dtype=complex)
     psi[count] = 1.
     return psi
 
@@ -93,7 +93,7 @@ def measure_single_qubit_sz(psi: np.ndarray, m: int) -> Tuple[np.ndarray, float,
     dim_qubits_on_left = 2 ** m     # Hilbert-space dimension of m qubits sitting before the two qubits on which U is applied
     psi = psi.reshape(dim_qubits_on_left, 2, -1).transpose(1, 0, 2).reshape(2, -1)
     psi_0 = psi[0, :]
-    prob_0 = np.dot(psi_0, np.conjugate(psi_0))  
+    prob_0 = np.dot(psi_0, np.conjugate(psi_0)).real  
 
 
     if np.random.random() < prob_0:

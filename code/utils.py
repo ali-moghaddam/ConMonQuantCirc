@@ -31,14 +31,19 @@ class QuantumTrajectoryDynamics:
     Args:
 
         num_qubits: An integer indicating the number of qubits or in other words the length of quantum circuit
-        
-        psi : manybody state of N qubits. A 2^N-dimensional numpy array
+        psi : manybody state of N qubits. A 2^N-dimensional numpy array.
+        timestep: An integer indicating the number of time steps in the evolution.
+        outcomes: A dictionary containing the outcomes of single-qubit measurements.
+        probabilities: A dictionary containing the probabilities of outcome |0> for single-qubit measurements.
 
     """
 
-    def __init__(self, num_qubits: int, psi: np.ndarray):
+    def __init__(self, num_qubits: int, psi: np.ndarray, timestep: int, outcomes: dict, probabilities: dict):
         self.num_qubits = num_qubits
         self.psi = psi
+        self.timestep = timestep
+        self.outcomes = outcomes
+        self.probabilities = probabilities
 
     def even_time_unitary(self, phi_cte = np.zeros((6,1)), randomness = 1) -> np.ndarray:
         """ Applies two-qubit unitary gates successively to neighboring qubits in even time steps.
@@ -98,7 +103,9 @@ class QuantumTrajectoryDynamics:
         
         for m in range(self.num_qubits):
             if np.random.rand() < measurement_rate:
-                self.psi = measure_single_qubit_sz(self.psi, m)    # This function applies projective measurement on single qubit
+                self.psi, prob_0, measurement_outcome = measure_single_qubit_sz(self.psi, m)  # This function applies projective measurement on single qubit
+                self.outcomes[(m, self.timestep)] = measurement_outcome    
+                self.probabilities[(m, self.timestep)] = prob_0    
 
 
     
