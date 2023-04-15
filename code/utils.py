@@ -15,9 +15,11 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import time
 from datetime import datetime
-from util_func import TwoQubit_Uni_U1 , Two_Qubit_Gate_on_Circuit
+from util_func import TwoQubit_Uni_U1 , Two_Qubit_Gate_on_Circuit, Neel_state_DPS
 
 TwoQubitUni = TwoQubit_Uni_U1
+Neel = Neel_state_DPS
+
 
 class QuantumTrajectoryDynamics:
     
@@ -34,7 +36,7 @@ class QuantumTrajectoryDynamics:
 
     """
 
-    def __init__(self, num_qubits: int, psi: np.ndarray):
+    def __init__(self, num_qubits: int, psi: np.ndarray = Neel(num_qubits)):
         self.num_qubits = num_qubits
         self.psi = psi
 

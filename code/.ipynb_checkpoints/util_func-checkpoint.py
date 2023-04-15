@@ -35,11 +35,7 @@ def Two_Qubit_Unitary_U1(phi: np.ndarray) -> np.ndarray:
     return unitary_matrix
 
 
-def Two_Qubit_Gate_on_Circuit(
-        psi: np.ndarray, 
-        U: np.ndarray, 
-        m: int
-        ) -> np.ndarray:
+def Two_Qubit_Gate_on_Circuit(psi: np.ndarray, U: np.ndarray, m: int) -> np.ndarray:
     
     """
     Applies a two-qubit gate to a many-qubit state psi.

@@ -55,3 +55,23 @@ def Two_Qubit_Gate_on_Circuit(psi: np.ndarray, U: np.ndarray, m: int) -> np.ndar
     psi = psi.reshape(4, dim_qubits_on_left, -1).transpose(1, 0, 2)
 
     return psi
+
+
+def Neel_state_DPS(N: int) -> np.ndarray:
+    """
+    Generates the direct product state (DPS) corresponding to a Neel state of N qubits, 
+    a state where the spins are alternating up and down. 
+    The state is represented as a 2^N-dimensional vector (a numpy array).
+    
+    Args:
+    N: An integer indicating the number of qubits.
+
+    Returns:
+    A numpy array representing the Neel state of N qubits.
+    """
+    
+    count = np.sum([2 ** (2 * m + 1) for m in range(N//2)])
+    psi = np.zeros(2 ** N, dtype=np.complex128)
+    psi[count] = 1.
+    return psi
+
