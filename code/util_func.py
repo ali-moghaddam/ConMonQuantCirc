@@ -75,3 +75,33 @@ def Neel_state_DPS(N: int) -> np.ndarray:
     psi[count] = 1.
     return psi
 
+def measure_single_qubit_sz(psi: np.ndarray, m: int) -> np.ndarray:
+    """Perform a random single-qubit measurement on the specified qubit and update the state accordingly.
+
+    Args:
+        m (int): The index of the qubit to measure.
+        psi (np.ndarray): The state vector of the system.
+
+    Returns:
+        psi (np.ndarray): The updated state vector after the measurement.
+        prob_down (float): The probability of measuring the qubit at site m in the down state.
+
+    """
+
+    dim_qubits_on_left = 2 ** m     # Hilbert-space dimension of m qubits sitting before the two qubits on which U is applied
+    psi = psi.reshape(dim_qubits_on_left, 2, -1).transpose(1, 0, 2).reshape(2, -1)
+    psi_down = psi[0, :]
+    prob_down = np.dot(psi_down, np.conjugate(psi_down))  
+
+
+    if np.random.random() < prob_down:
+        psi[1, :] = 0.
+        psi = psi / np.sqrt(prob_down)
+    else:
+        psi[0, :] = 0.
+        prob_up = (lambda p: p if p >= 1e-10 else 1e-10)(1. - prob_down)
+        psi = psi / np.sqrt(prob_up)
+
+    psi = psi.reshape(2, dim_qubits_on_left, -1).transpose(1, 0, 2)
+
+    return psi, prob_down
