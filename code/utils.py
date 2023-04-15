@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import time
 from datetime import datetime
-from util_func import TwoQubit_Uni_U1 , Two_Qubit_Gate_on_Circuit, Neel_state_DPS
+from util_func import TwoQubit_Uni_U1 , Two_Qubit_Gate_on_Circuit, Neel_state_DPS, measure_single_qubit_sz
 
 TwoQubitUni = TwoQubit_Uni_U1
 Neel = Neel_state_DPS
@@ -36,7 +36,7 @@ class QuantumTrajectoryDynamics:
 
     """
 
-    def __init__(self, num_qubits: int, psi: np.ndarray = Neel(num_qubits)):
+    def __init__(self, num_qubits: int, psi: np.ndarray):
         self.num_qubits = num_qubits
         self.psi = psi
 
@@ -51,11 +51,12 @@ class QuantumTrajectoryDynamics:
             psi: The updated manybody state of N qubits. A 2^N-dimensional numpy array.
 
         """
+
         num_TwoQubitGate = self.num_qubits//2
         phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
         
         for m in range(num_TwoQubitGate):
-            self.psi = Two_Qubit_Gate_on_Circuit(self.psi, TwoQubitUni(phi[:, m]), 2*m)       # This function applies two-qubit gate on circuit
+            self.psi = Two_Qubit_Gate_on_Circuit(self.psi, TwoQubitUni(phi[:, m]), 2 * m)       # This function applies two-qubit gate on circuit
         
 
 
@@ -82,6 +83,24 @@ class QuantumTrajectoryDynamics:
             phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
 
             for m in range(num_TwoQubitGate):
-                self.psi = Two_Qubit_Gate_on_Circuit(self.psi, TwoQubitUni(phi[:, m]), 2*m + 1)
+                self.psi = Two_Qubit_Gate_on_Circuit(self.psi, TwoQubitUni(phi[:, m]), 2 * m + 1)
+
+    def measurement_layer(self, measurement_rate: float = 0.) -> np.ndarray:
+        """ Applies projective measurements of single qubits.
+
+        Args:
+            measurement_rate: A float indicating the probability of measuring each qubit. Default is 0. for no measurement at all. 
+
+        Returns:
+            psi: The updated manybody state of N qubits. A 2^N-dimensional numpy array.
+
+        """
+        
+        for m in range(self.num_qubits):
+            if np.random.rand() < measurement_rate:
+                self.psi = measure_single_qubit_sz(self.psi, m)    # This function applies projective measurement on single qubit
+
+
+    
 
 
