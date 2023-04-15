@@ -9,6 +9,7 @@ Created on Thu Apr 13 17:41:22 2023
 import numpy as np
 import scipy.sparse as sp
 import scipy.linalg as la, scipy.sparse as sp
+from typing import Tuple
 
 
 
@@ -75,7 +76,7 @@ def Neel_state_DPS(N: int) -> np.ndarray:
     psi[count] = 1.
     return psi
 
-def measure_single_qubit_sz(psi: np.ndarray, m: int) -> np.ndarray:
+def measure_single_qubit_sz(psi: np.ndarray, m: int) -> Tuple[np.ndarray, float, int]:
     """Perform a random single-qubit measurement on the specified qubit and update the state accordingly.
 
     Args:
@@ -84,24 +85,27 @@ def measure_single_qubit_sz(psi: np.ndarray, m: int) -> np.ndarray:
 
     Returns:
         psi (np.ndarray): The updated state vector after the measurement.
-        prob_down (float): The probability of measuring the qubit at site m in the down state.
+        prob_0 (float): The probability of measuring the qubit at site m in the |0> state.
+        measurement_outcome (int): The outcome of the single-qubit measurement (0 or 1).
 
     """
 
     dim_qubits_on_left = 2 ** m     # Hilbert-space dimension of m qubits sitting before the two qubits on which U is applied
     psi = psi.reshape(dim_qubits_on_left, 2, -1).transpose(1, 0, 2).reshape(2, -1)
-    psi_down = psi[0, :]
-    prob_down = np.dot(psi_down, np.conjugate(psi_down))  
+    psi_0 = psi[0, :]
+    prob_0 = np.dot(psi_0, np.conjugate(psi_0))  
 
 
-    if np.random.random() < prob_down:
+    if np.random.random() < prob_0:
         psi[1, :] = 0.
-        psi = psi / np.sqrt(prob_down)
+        psi = psi / np.sqrt(prob_0)
+        measurement_outcome = 0
     else:
         psi[0, :] = 0.
-        prob_up = (lambda p: p if p >= 1e-10 else 1e-10)(1. - prob_down)
-        psi = psi / np.sqrt(prob_up)
+        prob_1 = (lambda p: p if p >= 1e-10 else 1e-10)(1. - prob_0)
+        psi = psi / np.sqrt(prob_1)
+        measurement_outcome = 1
 
     psi = psi.reshape(2, dim_qubits_on_left, -1).transpose(1, 0, 2)
 
-    return psi, prob_down
+    return psi, prob_0, measurement_outcome
