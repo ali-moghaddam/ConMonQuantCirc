@@ -15,11 +15,10 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import time
 from datetime import datetime
-from util_func import TwoQubit_Uni_U1 , Two_Qubit_Gate_on_Circuit, Neel_state_DPS, measure_single_qubit_sz
+from util_func import twoqubit_unitary_U1 , two_qubit_gate_on_circuit, Neel_state_direct, measure_single_qubit_sz, reduced_density_matrix_from_state
 
-TwoQubitUni = TwoQubit_Uni_U1
-Neel = Neel_state_DPS
-
+twoqubit_U = twoqubit_unitary_U1
+Neel = Neel_state_direct
 
 class QuantumTrajectoryDynamics:
     
@@ -61,7 +60,7 @@ class QuantumTrajectoryDynamics:
         phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
         
         for m in range(num_TwoQubitGate):
-            self.psi = Two_Qubit_Gate_on_Circuit(self.psi, TwoQubitUni(phi[:, m]), 2 * m)       # This function applies two-qubit gate on circuit
+            self.psi = two_qubit_gate_on_circuit(self.psi, twoqubit_U(phi[:, m]), 2 * m)       # This function applies two-qubit gate on circuit
         
 
 
@@ -88,7 +87,7 @@ class QuantumTrajectoryDynamics:
             phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
 
             for m in range(num_TwoQubitGate):
-                self.psi = Two_Qubit_Gate_on_Circuit(self.psi, TwoQubitUni(phi[:, m]), 2 * m + 1)
+                self.psi = two_qubit_gate_on_circuit(self.psi, twoqubit_U(phi[:, m]), 2 * m + 1)
 
     def measurement_layer(self, measurement_rate: float = 0.) -> np.ndarray:
         """ Applies projective measurements of single qubits.
@@ -107,6 +106,30 @@ class QuantumTrajectoryDynamics:
                 self.outcomes[(m, self.timestep)] = measurement_outcome    
                 self.probabilities[(m, self.timestep)] = prob_0    
 
+    
+    def entanglement_entropy(self, partitions: list, measure: str = 'von_Neumann') -> float:
+        """ Calculates the entanglement entropy of the manybody state.
+
+        Args:
+            measure: A string indicating the measure of entanglement. Default is 'von_Neumann'.
+
+        Returns:
+            S: The entanglement entropy of the manybody state.
+
+        """
+        
+        rho = reduced_density_matrix_from_state(self.psi, partitions, subsys='A' )
+        eigvals_rho = np.linalg.eigvalsh(rho)
+        non_zero_eigvals_rho = [l for l in eigvals_rho if l > 1e-10]
+
+        if measure == 'von_Neumann': # von Neumann entropy
+            S = -np.sum([l * np.log(l) for l in non_zero_eigvals_rho])
+        elif measure == 'Renyi': # second Renyi entropy
+            S =  -np.sum([np.log(l**2) for l in non_zero_eigvals_rho])
+        else:
+            raise ValueError('Invalid measure of entanglement')
+
+        return S
 
     
 

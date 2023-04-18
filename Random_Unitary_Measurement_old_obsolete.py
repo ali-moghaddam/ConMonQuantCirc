@@ -217,20 +217,20 @@ def red_den_mat_disjoint(N,cut_a,cut_b,cut_c,cut_d,MPS_to_DPS):
 # desity matrix of a subssytem of subsystems at arbitrary position
 # =============================================================================
 
-def red_den_mat_single(N,cut_a,cut_b,MPS_to_DPS):
+# def red_den_mat_single(N,cut_a,cut_b,MPS_to_DPS):
     
-    Dim_prime_L = 2**(cut_a)
-    Dim_sub = 2**(cut_b-cut_a)
-    Dim_prime_R = 2**(N-cut_b)
+#     Dim_prime_L = 2**(cut_a)
+#     Dim_sub = 2**(cut_b-cut_a)
+#     Dim_prime_R = 2**(N-cut_b)
     
-    Dim_prime = Dim_prime_L * Dim_prime_R
+#     Dim_prime = Dim_prime_L * Dim_prime_R
 
-    DPS_to_Kron = MPS_to_DPS.reshape(Dim_prime_L,Dim_sub,Dim_prime_R)
-    ket = (DPS_to_Kron.transpose(1,0,2)).reshape(Dim_sub,Dim_prime)
+#     DPS_to_Kron = MPS_to_DPS.reshape(Dim_prime_L,Dim_sub,Dim_prime_R)
+#     ket = (DPS_to_Kron.transpose(1,0,2)).reshape(Dim_sub,Dim_prime)
     
-    rho_sub = np.matmul( ket , np.conjugate(np.transpose(ket)) )
+#     rho_sub = np.matmul( ket , np.conjugate(np.transpose(ket)) )
 
-    return rho_sub
+#     return rho_sub
 
 
 
@@ -288,31 +288,31 @@ def expval_subsys_Sz2(N,subsys,psi):
 
 
 
-def measurement_single_random_a(m,N,psi,t):
+# def measurement_single_random_a(m,N,psi,t):
 
-    dim_L = 2**(m)
-    dim_R = 2**(N-m-1)
-    psi = psi.reshape(dim_L,2,dim_R)
-    ket = (psi.transpose(1,0,2)).reshape(2,2**(N-1))
+#     dim_L = 2**(m)
+#     dim_R = 2**(N-m-1)
+#     psi = psi.reshape(dim_L,2,dim_R)
+#     ket = (psi.transpose(1,0,2)).reshape(2,2**(N-1))
     
 
-    prob_up = np.dot(ket[1,:],np.conjugate(ket[1,:]))  #np.sum(abs(ket[0,:])**2.)
-    prob_down = np.dot(ket[0,:],np.conjugate(ket[0,:]))
+#     prob_up = np.dot(ket[1,:],np.conjugate(ket[1,:]))  #np.sum(abs(ket[0,:])**2.)
+#     prob_down = np.dot(ket[0,:],np.conjugate(ket[0,:]))
     
-    #print(psi.reshape(2**N))
-    if (np.random.random() < prob_down):
+#     #print(psi.reshape(2**N))
+#     if (np.random.random() < prob_down):
         
-        ket[1,:] = 0.
-        ket = ket/np.sqrt(prob_down)
-    else:
+#         ket[1,:] = 0.
+#         ket = ket/np.sqrt(prob_down)
+#     else:
         
-        ket[0,:] = 0.
-        ket = ket/np.sqrt(prob_up)
+#         ket[0,:] = 0.
+#         ket = ket/np.sqrt(prob_up)
         
-    ket = ket.reshape(2,dim_L,dim_R)
-    ket = (ket.transpose(1,0,2)).reshape(2**N)
+#     ket = ket.reshape(2,dim_L,dim_R)
+#     ket = (ket.transpose(1,0,2)).reshape(2**N)
   
-    return ket
+#     return ket
 
 
 
@@ -323,30 +323,30 @@ def measurement_single_random_a(m,N,psi,t):
 
 # ###################################################
 
-def measurement_single_random_kim(m,N,psi,t):
+# def measurement_single_random_kim(m,N,psi,t):
 
-    dim_L = 2**(m)
-    dim_R = 2**(N-m-1)
-    psi = psi.reshape(dim_L,2,dim_R)
-    ket = (psi.transpose(1,0,2)).reshape(2,2**(N-1))
+#     dim_L = 2**(m)
+#     dim_R = 2**(N-m-1)
+#     psi = psi.reshape(dim_L,2,dim_R)
+#     ket = (psi.transpose(1,0,2)).reshape(2,2**(N-1))
     
 
-    prob_up = np.dot(ket[1,:],np.conjugate(ket[1,:]))  #np.sum(abs(ket[0,:])**2.)
-    prob_down = np.dot(ket[0,:],np.conjugate(ket[0,:]))
+#     prob_up = np.dot(ket[1,:],np.conjugate(ket[1,:]))  #np.sum(abs(ket[0,:])**2.)
+#     prob_down = np.dot(ket[0,:],np.conjugate(ket[0,:]))
     
-    #print(psi.reshape(2**N))
-    if (0.5 < prob_down):
+#     #print(psi.reshape(2**N))
+#     if (0.5 < prob_down):
         
-        ket[1,:] = 0.
-        ket = ket/np.sqrt(prob_down)
-    else:
+#         ket[1,:] = 0.
+#         ket = ket/np.sqrt(prob_down)
+#     else:
         
-        ket[0,:] = 0.
-        ket = ket/np.sqrt(prob_up)
+#         ket[0,:] = 0.
+#         ket = ket/np.sqrt(prob_up)
   
-    psi = ket
-    #print(psi.reshape(2**N))
-    return psi
+#     psi = ket
+#     #print(psi.reshape(2**N))
+#     return psi
 
 
            

@@ -7,13 +7,15 @@ Created on Thu Apr 10 17:41:22 2023
 """
 
 import numpy as np
+from functools import reduce
+import operator
 import scipy.sparse as sp
 import scipy.linalg as la, scipy.sparse as sp
 from typing import Tuple
 
 
 
-def TwoQubit_Uni_U1(phi: np.ndarray) -> np.ndarray:
+def twoqubit_unitary_U1(phi: np.ndarray) -> np.ndarray:
     """
     Calculates the U(1) charge-conserving unitary for a two-qubit gate (with 6 parameter overall).
 
@@ -36,7 +38,7 @@ def TwoQubit_Uni_U1(phi: np.ndarray) -> np.ndarray:
     return unitary_matrix
 
 
-def Two_Qubit_Gate_on_Circuit(psi: np.ndarray, U: np.ndarray, m: int) -> np.ndarray:
+def two_qubit_gate_on_circuit(psi: np.ndarray, U: np.ndarray, m: int) -> np.ndarray:
     
     """
     Applies a two-qubit gate to a many-qubit state psi.
@@ -58,7 +60,7 @@ def Two_Qubit_Gate_on_Circuit(psi: np.ndarray, U: np.ndarray, m: int) -> np.ndar
     return psi
 
 
-def Neel_state_DPS(N: int) -> np.ndarray:
+def Neel_state_direct(N: int) -> np.ndarray:
     """
     Generates the direct product state (DPS) corresponding to a Neel state of N qubits, 
     a state where the spins are alternating up and down. 
@@ -91,9 +93,10 @@ def measure_single_qubit_sz(psi: np.ndarray, m: int) -> Tuple[np.ndarray, float,
     """
 
     dim_qubits_on_left = 2 ** m     # Hilbert-space dimension of m qubits sitting before the two qubits on which U is applied
-    psi = psi.reshape(dim_qubits_on_left, 2, -1).transpose(1, 0, 2).reshape(2, -1)
+    # Reshape the state vector to a 2x2^(N-1) matrix with its axis=0 corresponding to the two basis states of the qubit at site m. 
+    psi = psi.reshape(dim_qubits_on_left, 2, -1).transpose(1, 0, 2).reshape(2, -1) 
     psi_0 = psi[0, :]
-    prob_0 = np.dot(psi_0, np.conjugate(psi_0)).real  
+    prob_0 = np.dot(psi_0, np.conjugate(psi_0)).real  # probability of measuring the qubit at site m in the |0> state
 
 
     if np.random.random() < prob_0:
@@ -109,3 +112,52 @@ def measure_single_qubit_sz(psi: np.ndarray, m: int) -> Tuple[np.ndarray, float,
     psi = psi.reshape(2, dim_qubits_on_left, -1).transpose(1, 0, 2)
 
     return psi, prob_0, measurement_outcome
+
+
+
+
+
+def reduced_density_matrix_from_state(psi: np.ndarray, partitions: list, subsys: str = 'A') -> np.ndarray:
+    """
+    Computes the reduced density matrix of a quantum state with respect to specified partitions.
+
+    Args:
+        psi: Numpy array of shape (2**N,) where N is the total number of qubits in the state.
+        partitions: List of integers representing the number of qubits in each partition.
+                    The partitions are ordered from left to right. 
+                    Even and odd partitions are considered to be parts of the subsystem A and B respectively.
+                    
+                    E.g.: partitions = [2, 2, 4] means that the state is split into 3 partitions of 2, 2 and 4 qubits respectively.
+                    Subsystem A is composed of the first and third partition, while subsystem B is composed of the second partition,
+                    i.e. the state is split into the following partitions: aa|bb|aaaa with each small letter indicating a qubit in the partition.
+
+        subsys: String indicating which subsystem to compute the reduced density matrix for.
+
+    Returns:
+        The reduced density matrix of the subsystem corresponding to the quantum state.
+    """
+
+    
+    dim_partitions = [2 ** n for n in partitions] # list of Hilbert-space dimensions of different partitions
+    dim_subsys_A = int(reduce(operator.mul, dim_partitions[::2] ))  # Hilbert-space dimensions of subsystem A
+
+    partitions_label = range(len(partitions))
+
+    # Create a tuple with the transposition order such that even partitions (subsystem A) are first, followed by odd partitions (subsystem B)
+    axes_exchanged = [i for i in partitions_label if i % 2 == 0] + [i for i in partitions_label if i % 2 == 1]
+
+    # Reshape the array representing the state vector as a array of for dim_subsys_A x dim_subsys_B.
+    psi = psi.reshape(dim_partitions).transpose(axes_exchanged).reshape(dim_subsys_A, -1)
+
+    if subsys == 'A':
+        # Compute the reduced density matrix for subsys_A by taking the partial trace over subsys_B
+        rho = np.matmul( psi , np.conjugate( np.transpose(psi) ) )
+    else:
+        # Compute the reduced density matrix of subsys_B by taking the partial trace over subsys_A
+        rho = np.matmul(  np.transpose(psi) , np.conjugate(psi) )
+
+    return rho
+
+
+
+
