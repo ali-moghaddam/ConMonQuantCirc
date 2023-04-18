@@ -8,13 +8,14 @@ Created on Thu Apr 13 11:51:39 2023
 
 
 import numpy as np
-import pylab as py
-import scipy.sparse as sp
-import scipy.linalg as la, scipy.sparse as sp
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
-import time
-from datetime import datetime
+from scipy.stats import unitary_group as randU
+# import scipy.sparse as sp
+# import scipy.linalg as la, scipy.sparse as sp
+# import pylab as py
+# import matplotlib.pyplot as plt
+# from matplotlib.colors import ListedColormap
+# import time
+# from datetime import datetime
 from util_func import twoqubit_unitary_U1 , two_qubit_gate_on_circuit, Neel_state_direct, measure_single_qubit_sz, reduced_density_matrix_from_state
 
 twoqubit_U = twoqubit_unitary_U1
@@ -44,7 +45,7 @@ class QuantumTrajectoryDynamics:
         self.outcomes = outcomes
         self.probabilities = probabilities
 
-    def even_time_unitary(self, phi_cte = np.zeros((6,1)), randomness = 1) -> np.ndarray:
+    def even_time_unitary(self) -> np.ndarray:
         """ Applies two-qubit unitary gates successively to neighboring qubits in even time steps.
 
         Args:
@@ -57,14 +58,13 @@ class QuantumTrajectoryDynamics:
         """
 
         num_TwoQubitGate = self.num_qubits//2
-        phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
         
         for m in range(num_TwoQubitGate):
-            self.psi = two_qubit_gate_on_circuit(self.psi, twoqubit_U(phi[:, m]), 2 * m)       # This function applies two-qubit gate on circuit
+            self.psi = two_qubit_gate_on_circuit(self.psi, randU.rvs(4), 2 * m)       # This function applies two-qubit gate on circuit
         
 
 
-    def odd_time_unitary(self, phi_cte = np.zeros((6,1)), randomness = 1., PBC = True) -> np.ndarray:
+    def odd_time_unitary(self, PBC = True) -> np.ndarray:
         """ Applies two-qubit unitary gates successively to neighboring qubits in odd time steps.
 
         Args:
@@ -79,15 +79,16 @@ class QuantumTrajectoryDynamics:
         
         if PBC:        
             self.psi = self.psi.reshape(2 , 2**(self.num_qubits-1)).transpose(1, 0)
-            self.even_time_unitary(phi_cte, randomness)
+            self.even_time_unitary()
             self.psi = self.psi.reshape(2**(self.num_qubits-1), 2).transpose(1, 0)
         
         else:
             num_TwoQubitGate = self.num_qubits//2 - 1    # The number of gates for OBC case.
-            phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
 
             for m in range(num_TwoQubitGate):
-                self.psi = two_qubit_gate_on_circuit(self.psi, twoqubit_U(phi[:, m]), 2 * m + 1)
+                self.psi = two_qubit_gate_on_circuit(self.psi, randU.rvs(4), 2 * m + 1)
+
+
 
     def measurement_layer(self, measurement_rate: float = 0.) -> np.ndarray:
         """ Applies projective measurements of single qubits.
@@ -139,3 +140,63 @@ class QuantumTrajectoryDynamics:
     
 
 
+
+
+
+
+class ConservedTrajectoryDynamics(QuantumTrajectoryDynamics):
+
+    """ A subclass QuantumTrajectoryDynamics for simulating quantum dynamics under U(1) conservation meaning
+    that with two-qubit gates which keep the total charge of two qubtits intact.
+    """ 
+
+    def __init__(self, num_qubits: int, psi: np.ndarray, timestep: int, outcomes: dict, probabilities: dict):
+        super().__init__(num_qubits, psi, timestep, outcomes, probabilities)
+
+
+    def even_time_unitary(self, phi_cte = np.zeros((6,1)), randomness = 1) -> np.ndarray:
+        """ Applies two-qubit U(1) charge-conserving unitary gates successively to neighboring qubits in even time steps.
+
+        Args:
+            phi_cte: A constant (6-component) set of unitary phases. Default all 0.
+            randomness: A float indicating the amount of randomness in unitary phases. Default is 1.
+
+        Returns:
+            psi: The updated manybody state of N qubits. A 2^N-dimensional numpy array.
+
+        """
+
+        num_TwoQubitGate = self.num_qubits//2
+        phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
+        
+        for m in range(num_TwoQubitGate):
+            self.psi = two_qubit_gate_on_circuit(self.psi, twoqubit_U(phi[:, m]), 2 * m)       # This function applies two-qubit gate on circuit
+        
+
+
+    def odd_time_unitary(self, phi_cte = np.zeros((6,1)), randomness = 1., PBC = True) -> np.ndarray:
+        """ Applies two-qubit U(1) charge-conserving unitary gates successively to neighboring qubits in odd time steps.
+
+        Args:
+            phi_cte: A constant (6-component) set of unitary phases. Default all 0.
+            randomness: A float indicating the amount of randomness in unitary phases. Default is 1.
+            PBC: A boolean indicating if we have periodic boundary condiction (PBC) or not.
+
+        Returns:
+            psi: The updated manybody state of N qubits. A 2^N-dimensional numpy array.
+
+        """
+        
+        if PBC:        
+            self.psi = self.psi.reshape(2 , 2**(self.num_qubits-1)).transpose(1, 0)
+            self.even_time_unitary(phi_cte, randomness)
+            self.psi = self.psi.reshape(2**(self.num_qubits-1), 2).transpose(1, 0)
+        
+        else:
+            num_TwoQubitGate = self.num_qubits//2 - 1    # The number of gates for OBC case.
+            phi = phi_cte + randomness * np.pi * np.random.rand(6, num_TwoQubitGate)
+
+            for m in range(num_TwoQubitGate):
+                self.psi = two_qubit_gate_on_circuit(self.psi, twoqubit_U(phi[:, m]), 2 * m + 1)
+
+  
