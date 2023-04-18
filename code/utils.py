@@ -107,11 +107,13 @@ class QuantumTrajectoryDynamics:
                 self.probabilities[(m, self.timestep)] = prob_0    
 
     
-    def entanglement_entropy(self, partitions: list, measure: str = 'von_Neumann') -> float:
+
+
+    def entanglement_entropy(self, partitions: list, order: float = 1) -> float:
         """ Calculates the entanglement entropy of the manybody state.
 
         Args:
-            measure: A string indicating the measure of entanglement. Default is 'von_Neumann'.
+            order: An float indicating the type of entanglement entropy. Default is 1 corresponding to 'von_Neumann'.
 
         Returns:
             S: The entanglement entropy of the manybody state.
@@ -122,12 +124,15 @@ class QuantumTrajectoryDynamics:
         eigvals_rho = np.linalg.eigvalsh(rho)
         non_zero_eigvals_rho = [l for l in eigvals_rho if l > 1e-10]
 
-        if measure == 'von_Neumann': # von Neumann entropy
+        if order == 1: # von Neumann entropy
             S = -np.sum([l * np.log(l) for l in non_zero_eigvals_rho])
-        elif measure == 'Renyi': # second Renyi entropy
-            S =  -np.sum([np.log(l**2) for l in non_zero_eigvals_rho])
+        elif order > 1: # Renyi entropy of order = order
+            S =  -np.sum([np.log(l**order) for l in non_zero_eigvals_rho])/(1 - order)
         else:
-            raise ValueError('Invalid measure of entanglement')
+            raise ValueError("Order of entanglement entropy must be greater than 0")
+
+        if abs(S) < 1e-10:
+            S = 0.
 
         return S
 
