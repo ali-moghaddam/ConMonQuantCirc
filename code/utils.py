@@ -16,7 +16,7 @@ from scipy.stats import unitary_group as randU
 # from matplotlib.colors import ListedColormap
 # import time
 # from datetime import datetime
-from util_func import twoqubit_unitary_U1 , two_qubit_gate_on_circuit, Neel_state_direct, measure_single_qubit_sz, reduced_density_matrix_from_state
+from util_func import *
 
 twoqubit_U = twoqubit_unitary_U1
 Neel = Neel_state_direct
@@ -90,7 +90,7 @@ class QuantumTrajectoryDynamics:
 
 
 
-    def measurement_layer(self, measurement_rate: float = 0.) -> np.ndarray:
+    def measurement_layer(self, measurement_rate: float = 0., measure_strength: float = 1.) -> np.ndarray:
         """ Applies projective measurements of single qubits.
 
         Args:
@@ -103,31 +103,42 @@ class QuantumTrajectoryDynamics:
         
         for m in range(self.num_qubits):
             if np.random.rand() < measurement_rate:
-                self.psi, prob_0, measurement_outcome = measure_single_qubit_sz(self.psi, m)  # This function applies projective measurement on single qubit
+                # self.psi, prob_0, measurement_outcome = measure_single_qubit_sz(self.psi, m)  # This function applies projective measurement on single qubit
+                self.psi, prob_0, measurement_outcome = measure_weak_single_qubit_sz(self.psi, m, measure_strength)
                 self.outcomes[(m, self.timestep)] = measurement_outcome    
                 self.probabilities[(m, self.timestep)] = prob_0    
 
     
 
 
-    def entanglement_entropy(self, partitions: list, order: float = 1) -> float:
-        """ Calculates the entanglement entropy of the manybody state.
+    def subsys_entanglemententropy_and_spinvariance(self, partitions: list, order: float = 1) -> float:
+        """ Calculates the entanglement entropy and spin variance for a given subsytem in a bipartitioning.
+            Important note: the two subsystems can be decomposed of disjoint smaler regions (encoded in the "partitions" list).
+            For instance if we have an overall of 16 qubits, then partitions = [8,8] or [4,12] is simple bipartitioning,
+            but we can have also partitions = [4,4,4,4] or even [2,4,2,3,1,4].
+            By definition subsystem A and B corespond to the even-index and odd-index elements of the list "partitions", respectively.
+            Obviously, the total number of qubits in the system must be equal to the sum of the elements of the list "partitions".
+
 
         Args:
             order: An float indicating the type of entanglement entropy. Default is 1 corresponding to 'von_Neumann'.
 
         Returns:
-            S: The entanglement entropy of the manybody state.
+            S: The entanglement entropy of the subsystem for a the manybody state.
+            varSz: The spin variance of the subsystem for a the manybody state.
 
         """
         
-        rho = reduced_density_matrix_from_state(self.psi, partitions, subsys='A' )
+        rho = reduced_density_matrix_from_state(self.psi, partitions, subsys='A')
+
+        # Calculate the entanglement entropy: 
+
         eigvals_rho = np.linalg.eigvalsh(rho)
         non_zero_eigvals_rho = [l for l in eigvals_rho if l > 1e-10]
 
-        if order == 1: # von Neumann entropy
+        if order == 1: # von Neumann entropy S = -Tr(rho * log(rho)) = -sum(l_i * log(l_i))
             S = -np.sum([l * np.log(l) for l in non_zero_eigvals_rho])
-        elif order > 1: # Renyi entropy of order = order
+        elif order > 1: # Renyi entropy of order = order S = -1/(1-order) * Tr(log(rho^order)) = -1/(1-order) * log(sum(l_i^order))
             S =  -np.sum([np.log(l**order) for l in non_zero_eigvals_rho])/(1 - order)
         else:
             raise ValueError("Order of entanglement entropy must be greater than 0")
@@ -135,18 +146,20 @@ class QuantumTrajectoryDynamics:
         if abs(S) < 1e-10:
             S = 0.
 
-        return S
+        # Calculate the spin variance:
 
-    
+        num_qubits_subsys_A = sum(partitions[::2])
+        Sz_tot = Sz_tot_diagon(num_qubits_subsys_A).flatten()
+        rho_diag = np.diagonal(rho).flatten()
+        varSz = np.dot(rho_diag, Sz_tot**2.) - np.dot(rho_diag, Sz_tot)**2. # varSz = <Sz^2> - <Sz>^2
 
-
-
+        return S, varSz
 
 
 
 class ConservedTrajectoryDynamics(QuantumTrajectoryDynamics):
 
-    """ A subclass QuantumTrajectoryDynamics for simulating quantum dynamics under U(1) conservation meaning
+    """ A subclass of class "QuantumTrajectoryDynamics" for simulating quantum dynamics under U(1) conservation meaning
     that with two-qubit gates which keep the total charge of two qubtits intact.
     """ 
 

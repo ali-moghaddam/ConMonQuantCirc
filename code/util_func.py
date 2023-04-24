@@ -9,8 +9,8 @@ Created on Thu Apr 10 17:41:22 2023
 import numpy as np
 from functools import reduce
 import operator
-import scipy.sparse as sp
-import scipy.linalg as la, scipy.sparse as sp
+# import scipy.sparse as sp
+# import scipy.linalg as la, scipy.sparse as sp
 from typing import Tuple
 
 
@@ -115,6 +115,48 @@ def measure_single_qubit_sz(psi: np.ndarray, m: int) -> Tuple[np.ndarray, float,
 
 
 
+def measure_weak_single_qubit_sz(psi: np.ndarray, m: int, lambdaa: float) -> Tuple[np.ndarray, float, int]:
+    """Perform a random single-qubit measurement on the specified qubit and update the state accordingly.
+
+    Args:
+        m (int): The index of the qubit to measure.
+        psi (np.ndarray): The state vector of the system.
+        lambdaa (float): The strength of the measurement. lambdaa = 0 corresponds to a no measurement 
+                         and lambdaa = 1 corresponds to a projective measurement.
+
+    Returns:
+        psi (np.ndarray): The updated state vector after the measurement.
+        prob_0 (float): The probability of measuring the qubit at site m in the |0> state.
+        measurement_outcome (int): The outcome of the single-qubit measurement (0 or 1).
+
+    """
+
+    dim_qubits_on_left = 2 ** m     # Hilbert-space dimension of m qubits sitting before the two qubits on which U is applied
+    # Reshape the state vector to a 2x2^(N-1) matrix with its axis=0 corresponding to the two basis states of the qubit at site m. 
+    psi = psi.reshape(dim_qubits_on_left, 2, -1).transpose(1, 0, 2).reshape(2, -1) 
+    psi_0 = psi[0, :]
+
+
+    projective_prob_0 = np.dot(psi_0, np.conjugate(psi_0)).real  # probability of measuring the qubit at site m in the |0> state
+    weak_prob_0 = ( 4. * lambdaa * projective_prob_0 + (1. - lambdaa) ** 2. ) / ( 2. * (1. + lambdaa**2.) )
+    
+    psi_post = 1. * psi # initialize the post-measurement state as pre-measurement state
+    proj_coeff = np.array([(1. + lambdaa) , (1. - lambdaa)])/np.sqrt(2. * (1. + lambdaa**2.))
+
+    if np.random.random() < weak_prob_0:
+        psi_post[0, :] = proj_coeff[0] * psi[0, :] / np.sqrt(weak_prob_0)
+        psi_post[1, :] = proj_coeff[1] * psi[1, :] / np.sqrt(weak_prob_0)
+        measurement_outcome = 0
+    else:
+        psi_post[0, :] = proj_coeff[1] * psi[0, :] / np.sqrt(1-weak_prob_0)
+        psi_post[1, :] = proj_coeff[0] * psi[1, :] / np.sqrt(1-weak_prob_0)
+        measurement_outcome = 1
+
+    psi_post = psi_post.reshape(2, dim_qubits_on_left, -1).transpose(1, 0, 2)
+
+    return psi_post, weak_prob_0, measurement_outcome
+
+
 
 
 def reduced_density_matrix_from_state(psi: np.ndarray, partitions: list, subsys: str = 'A') -> np.ndarray:
@@ -143,7 +185,7 @@ def reduced_density_matrix_from_state(psi: np.ndarray, partitions: list, subsys:
 
     partitions_label = range(len(partitions))
 
-    # Create a tuple with the transposition order such that even partitions (subsystem A) are first, followed by odd partitions (subsystem B)
+    # Create a list with the transposition order such that even partitions (subsystem A) are first, followed by odd partitions (subsystem B)
     axes_exchanged = [i for i in partitions_label if i % 2 == 0] + [i for i in partitions_label if i % 2 == 1]
 
     # Reshape the array representing the state vector as a array of for dim_subsys_A x dim_subsys_B.
@@ -160,4 +202,24 @@ def reduced_density_matrix_from_state(psi: np.ndarray, partitions: list, subsys:
 
 
 
+def Sz_tot_diagon(num_qubits):
 
+    """ 
+    Returns the diagon of the matrix representation of the total spin operator Sz for a system of num_qubits qubits
+    in the natural direct product states basis. 
+
+    Args:
+        num_qubits: An integer indicating the number of qubits in the system.
+
+    Returns:
+        A numpy array of shape (2**num_qubits,1) containing the diagonal elements of the matrix representation of the total spin operator Sz.
+        Note that the matrix is diagonal in the natural direct product states basis an thus we only need to return the diagonal elements.
+    """ 
+
+    Sz_tot = 0.
+    for m in range(num_qubits):
+        sz = np.ones((2, 2**(num_qubits-1)), dtype=int)
+        sz[1] = -1
+        Sz_tot += sz.reshape(2,2**m,-1).transpose(1,0,2).reshape( 2**num_qubits, 1)
+        
+    return Sz_tot
