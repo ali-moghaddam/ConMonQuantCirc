@@ -7,6 +7,22 @@ layout: default
 ### Abstract
 
 
+
+* * * * * *
+### Introduction to monitored quantum circuits
+
+A monitored quantum circuit (MQC) refers to a digital quantum computer or simply quantum circuit that allows for both quantum measurement and quantum gates (unitary operations) during the computation.
+While in a standard quantum circuit, typically the input state is transformed into a final state only through a sequence of quantum gates, and the measurement (readout) is carried out in the final stage, a MQC includes also measurements at intermediate times in the evolution of the circuit. 
+
+From a merely quantum computational perspective the mid-circuit measurements can be exploited for the sake of 
+observing and potentially correcting the quantum state before the final readout. On the other hand and from a fundamental point of view,  it has been found recently that these quantum circuits with random unitaries and local measurements can offer a new interesting platform for investigating quantum many-body physics and collective phenomena far from equilibrium. Long-standing theoretical questions such as thermalization in closed quantum systems, quantum chaos, and entanglement dynamics all seem to show up in the monitored random quantum circuits. Also, recent experimental progress in building digital quantum simulators has made random quantum circuits a more natural playground in the noisy intermediate-scale quantum (NISQ) era and without the need for true quantum advantage.
+
+
+The flagship phenomenon in these systems, which is under intense study by various groups worldwide, is what is known as the measurement-induced entanglement phase transition.
+In brief, while the application of two- and multi-qubit unitary gates yields further entanglement, measurement destroys entanglement and their interplay leads to a critical behavior. The two-side of criticality correspond to distinct phases with volume-law and area-law entanglement, at small and large rates of measurements, respectively.
+We have been working on this timely topic since late 2022 and as part of our study, I have developed a very versatile and efficient Python code to simulate MQCs. The code does not rely on quantum computing open source
+
+
 * * * * * *
 ### Discrete-time quantum trajectories
 
