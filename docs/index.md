@@ -20,7 +20,7 @@ observing and potentially correcting the quantum state before the final readout.
 
 The flagship phenomenon in these systems, which is under intense study by various groups worldwide, is what is known as the measurement-induced entanglement phase transition.
 In brief, while the application of two- and multi-qubit unitary gates yields further entanglement, measurement destroys entanglement and their interplay leads to a critical behavior. The two-side of criticality correspond to distinct phases with volume-law and area-law entanglement, at small and large rates of measurements, respectively.
-We have been working on this timely topic since late 2022 and as part of our study, I have developed a very versatile and efficient Python code to simulate MQCs. The code does not rely on quantum computing open source
+We have been working on this timely topic since late 2022 and as part of our study, I have developed a versatile and efficient Python code to simulate MQCs. In what follows I will first explain the foundations of monitored ranadom quantum circuits and then review the structure of the code and finally describe main ideas and algorithms used in the code implementation. 
 
 
 * * * * * *
