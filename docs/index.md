@@ -28,9 +28,7 @@ We have been working on this timely topic since late 2022 and as part of our stu
 A schematic of ranadom monitored quantum circuits is shown in Fig. 1 below with horizontal direction indicating the spatial direction of the qubits in a one-dimentional chain and vertical direction showing the time evolution. 
 
 ![](https://ali-moghaddam.github.io/ConMonQuantCirc/assets/img/circuit-schematic.png)
-
-
-along which unitary quantum gates as well as single-qubit measurements of randomely chosen sites    
+> _Fig. 1_ **Schematic monitored quantum circuit** At each discrete time step, a set of two-qubit random unitaries are applied followed by a set of single-qubit measurements of randomly chosen sites. Gathering the history of each speial set of maesurement outcomes corresponds to a special quantum trajectory of the circuit. Assuming we have measured $M$ qubits during the time evolution, there will be $2^M$ different quantum trajectories.
 
 It is easy to understood that applying certain unitaries can generate entangled states from unentangled ones.
 For instance, considering two qubits in either of states $$|01\rangle$$ or $$|10\rangle$$ by applying the two-qubit unitary operator
